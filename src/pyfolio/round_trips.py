@@ -130,8 +130,9 @@ def _groupby_consecutive(txn, max_delta=pd.Timedelta("8h")):
     out = []
     for _, t in txn.groupby("symbol"):
         t = t.sort_index()
-        t.index.name = "dt"
-        t = t.reset_index()
+        if "dt" not in t.columns:
+            t.index.name = "dt"
+            t = t.reset_index()
 
         t["order_sign"] = t.amount > 0
         t["block_dir"] = (t.order_sign.shift(1) != t.order_sign).astype(int).cumsum()
