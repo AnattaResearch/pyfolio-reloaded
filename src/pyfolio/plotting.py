@@ -28,7 +28,7 @@ import scipy as sp
 import seaborn as sns
 from matplotlib import figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, FixedLocator
 
 from . import capacity
 from . import pos
@@ -320,7 +320,7 @@ def plot_holdings(returns, positions, legend_loc="best", ax=None, **kwargs):
 
     positions = positions.copy().drop("cash", axis="columns")
     df_holdings = positions.replace(0, np.nan).count(axis=1)
-    df_holdings_by_month = df_holdings.resample("1M").mean()
+    df_holdings_by_month = df_holdings.resample("ME").mean()
     df_holdings.plot(color="steelblue", alpha=0.6, lw=0.5, ax=ax, **kwargs)
     df_holdings_by_month.plot(color="orangered", lw=2, ax=ax, **kwargs)
     ax.axhline(df_holdings.values.mean(), color="steelblue", ls="--", lw=3)
@@ -662,7 +662,7 @@ def show_perf_stats(
     else:
         if len(returns.index) > 0:
             date_rows["Total months"] = int(len(returns) / APPROX_BDAYS_PER_MONTH)
-        perf_stats = pd.DataFrame(perf_stats_all, columns=["Backtest"])
+        perf_stats = pd.DataFrame(perf_stats_all, columns=["Backtest"], dtype=object)
 
     for column in perf_stats.columns:
         for stat, value in perf_stats[column].items():
@@ -1404,6 +1404,7 @@ def plot_return_quantiles(returns, live_start_date=None, ax=None, **kwargs):
             linestyle="",
         )
         ax.legend(handles=[red_dots], frameon=True, framealpha=0.5)
+    ax.xaxis.set_major_locator(FixedLocator(ax.get_xticks()))
     ax.set_xticklabels(["Daily", "Weekly", "Monthly"])
     ax.set_title("Return quantiles")
 
@@ -1462,7 +1463,7 @@ def plot_turnover(
     ax.yaxis.set_major_formatter(FuncFormatter(y_axis_formatter))
 
     df_turnover = txn.get_turnover(positions, transactions, turnover_denom)
-    df_turnover_by_month = df_turnover.resample("M").mean()
+    df_turnover_by_month = df_turnover.resample("ME").mean()
     df_turnover.plot(color="steelblue", alpha=1.0, lw=0.5, ax=ax, **kwargs)
     df_turnover_by_month.plot(color="orangered", alpha=0.5, lw=2, ax=ax, **kwargs)
     ax.axhline(df_turnover.mean(), color="steelblue", linestyle="--", lw=3, alpha=1.0)
