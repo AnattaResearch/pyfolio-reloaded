@@ -662,7 +662,7 @@ def show_perf_stats(
     else:
         if len(returns.index) > 0:
             date_rows["Total months"] = int(len(returns) / APPROX_BDAYS_PER_MONTH)
-        perf_stats = pd.DataFrame(perf_stats_all, columns=["Backtest"])
+        perf_stats = pd.DataFrame(perf_stats_all, columns=["Backtest"], dtype=object)
 
     for column in perf_stats.columns:
         for stat, value in perf_stats[column].items():
